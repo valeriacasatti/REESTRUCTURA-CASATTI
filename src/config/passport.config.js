@@ -1,7 +1,7 @@
 import passport from "passport";
 import localStrategy from "passport-local";
 import { createHash, isValidPassword } from "../utils.js";
-import { usersService } from "../dao/index.js";
+import { UsersService } from "../services/users.service.js";
 import { config } from "./config.js";
 import GithubStrategy from "passport-github2";
 import jwt from "passport-jwt";
@@ -21,7 +21,7 @@ export const initializePassport = () => {
       async (req, username, password, done) => {
         const { name, lastame, age } = req.body;
         try {
-          const user = await usersService.getUserByEmail(username);
+          const user = await UsersService.getUserByEmail(username);
           if (user) {
             //usuario ya registrado
             return done(null, false);
@@ -34,7 +34,7 @@ export const initializePassport = () => {
             email: username,
             password: createHash(password),
           };
-          const userCreated = await usersService.addUser(newUser);
+          const userCreated = await UsersService.addUser(newUser);
 
           return done(null, userCreated);
         } catch (error) {
@@ -55,7 +55,7 @@ export const initializePassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const user = await usersService.getUserByEmail(profile._json.email);
+          const user = await UsersService.getUserByEmail(profile._json.email);
           if (user) {
             return done(null, user);
           }
@@ -64,7 +64,7 @@ export const initializePassport = () => {
             email: profile._json.email,
             password: createHash(profile.id),
           };
-          const userCreated = await usersService.addUser(newUser);
+          const userCreated = await UsersService.addUser(newUser);
           return done(null, userCreated);
         } catch (error) {
           return done(error);
@@ -82,7 +82,7 @@ export const initializePassport = () => {
       },
       async (username, password, done) => {
         try {
-          const user = await usersService.getUserByEmail(username);
+          const user = await UsersService.getUserByEmail(username);
           if (!user) {
             //usuario no registrado
             return done(null, false);
@@ -110,7 +110,7 @@ export const initializePassport = () => {
       },
       async (profile, done) => {
         try {
-          const user = await usersService.getUserByEmail(profile._json.email);
+          const user = await UsersService.getUserByEmail(profile._json.email);
           if (!user) {
             return done(null, false);
           }

@@ -1,17 +1,19 @@
 import express from "express";
-import { __dirname } from "./utils.js";
 import path from "path";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import { __dirname } from "./utils.js";
 import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import { viewsRouter } from "./routes/views.routes.js";
 import { productsRouter } from "./routes/products.routes.js";
 import { cartsRouter } from "./routes/carts.routes.js";
-import { cartsService, chatsService, productsService } from "./dao/index.js";
+import { ProductsService } from "./services/products.service.js";
+import { CartsService } from "./services/carts.service.js";
+import { ChatService } from "./services/chat.service.js";
 import { chatsRouter } from "./routes/chat.routes.js";
 import { sessionsRouter } from "./routes/sessions.routes.js";
 import { connectDB } from "./config/dbConnection.js";
-import cookieParser from "cookie-parser";
-import passport from "passport";
 import { initializePassport } from "./config/passport.config.js";
 
 const port = 8080;
@@ -52,7 +54,7 @@ const io = new Server(httpServer);
 io.on("connection", async (socket) => {
   try {
     console.log("client connected");
-    const products = await productsService.getProducts();
+    const products = await ProductsService.getProducts();
     socket.emit("products", products);
 
     socket.on("addProduct", async (dataProduct) => {
@@ -67,9 +69,9 @@ io.on("connection", async (socket) => {
           category: dataProduct.category,
           thumbnail: dataProduct.thumbnail,
         };
-        await productsService.addProduct(productToSave);
+        await ProductsService.addProduct(productToSave);
 
-        const updatedProducts = await productsService.getProducts();
+        const updatedProducts = await ProductsService.getProducts();
         io.emit("products", updatedProducts);
       } catch (error) {
         console.log(error);
@@ -78,8 +80,8 @@ io.on("connection", async (socket) => {
 
     socket.on("deleteProduct", async (id) => {
       try {
-        await productsService.deleteProduct(id);
-        const updatedProducts = await productsService.getProducts();
+        await ProductsService.deleteProduct(id);
+        const updatedProducts = await ProductsService.getProducts();
 
         socket.emit("products", updatedProducts);
       } catch (error) {
@@ -94,7 +96,7 @@ io.on("connection", async (socket) => {
 ///CHAT
 io.on("connection", async (socket) => {
   try {
-    const chat = await chatsService.getMessages();
+    const chat = await ChatService.getMessages();
     socket.emit("chatHistory", chat);
     socket.on("messageChat", async (data) => {
       try {
@@ -113,8 +115,8 @@ io.on("connection", async (socket) => {
     socket.on("messageChat", async (data) => {
       try {
         if (data.message.trim() !== "") {
-          await chatsService.addMessage(data);
-          const messageDB = await chatsService.getMessages();
+          await ChatService.addMessage(data);
+          const messageDB = await ChatService.getMessages();
           io.emit("chatHistory", messageDB);
         }
       } catch (error) {
@@ -129,7 +131,7 @@ io.on("connection", async (socket) => {
 //CART
 io.on("connection", async (socket) => {
   try {
-    const cart = await cartsService.getCarts();
+    const cart = await CartsService.getCarts();
     socket.emit("products", cart);
   } catch (error) {
     console.log(error);

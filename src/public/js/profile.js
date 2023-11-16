@@ -9,6 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (result.status == "success") {
     welcome.innerHTML = `Welcome ${result.data.name}!`;
   } else {
-    window.location.href = "/";
+    window.location.href = "/login";
   }
 });

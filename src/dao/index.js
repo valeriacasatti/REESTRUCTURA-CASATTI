@@ -4,7 +4,7 @@ import { CartsManagerMongo } from "./mongo/cartsManagerMongo.js";
 import { ChatManagerMongo } from "./mongo/chatManagerMongo.js";
 import { UsersManagerMongo } from "./mongo/usersManagerMongo.js";
 
-export const productsService = new ProductsManagerMongo();
-export const cartsService = new CartsManagerMongo();
-export const chatsService = new ChatManagerMongo();
-export const usersService = new UsersManagerMongo();
+export const productsDao = new ProductsManagerMongo();
+export const cartsDao = new CartsManagerMongo();
+export const chatsDao = new ChatManagerMongo();
+export const usersDao = new UsersManagerMongo();
